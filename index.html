@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Про Раскрытие</title><meta name="robots" content="noindex">
+<style>
+html,body{margin:0;height:100%}
+body{display:flex;align-items:center;justify-content:center;background:#0B0A1A;color:#EDE6D6;font:16px/1.5 system-ui,-apple-system,sans-serif;text-align:center}
+.b{padding:24px;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:16px}
+svg{animation:s 6s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
+h1{margin:0;font:600 26px Georgia,serif;letter-spacing:.02em}
+p{margin:0;opacity:.75;font-size:15px}
+.ch{display:none;flex-direction:column;gap:10px;width:100%}
+.ch.on{display:flex}
+a{display:block;padding:14px 20px;border-radius:999px;text-decoration:none;font-weight:600;color:#2A1C0C;background:linear-gradient(135deg,#F3DDA6,#D9B86E)}
+a.o{background:none;color:#D6B26A;border:1.5px solid #D6B26A}
+</style></head><body>
+<div class="b">
+<svg width="72" height="72" viewBox="-100 -100 200 200" fill="none" stroke="#C9A04E" stroke-width="6" aria-hidden="true"><circle r="45"/><circle cx="45" r="45"/><circle cx="22.5" cy="38.97" r="45"/><circle cx="-22.5" cy="38.97" r="45"/><circle cx="-45" r="45"/><circle cx="-22.5" cy="-38.97" r="45"/><circle cx="22.5" cy="-38.97" r="45"/></svg>
+<h1>Про Раскрытие</h1>
+<p id="t">Открываю сайт…</p>
+<div class="ch" id="ch"><a id="aru" href="https://proraskritie.ru/">🇷🇺 Открыть сайт (Россия)</a><a class="o" id="acom" href="https://proraskritie.com/">🌍 Открыть сайт (другие страны)</a></div>
+</div>
+<script>
+(function(){
+// Умная ссылка: проверяем, какой адрес открывается у человека, и отправляем туда, сохраняя страницу (кабинет, урок, тест…).
+var RU='https://proraskritie.ru',COM='https://proraskritie.com';
+var path=location.pathname+location.search+location.hash;
+if(path==='/'||path==='/index.html'||path==='/404.html')path='/';
+document.getElementById('aru').href=RU+path;document.getElementById('acom').href=COM+path;
+var done=false;function go(base){if(done)return;done=true;try{localStorage.setItem('pr_go',base)}catch(e){}location.replace(base+path)}
+function probe(base,cb){var i=new Image(),t=setTimeout(function(){i.src='';cb(false)},2500);i.onload=function(){clearTimeout(t);cb(true)};i.onerror=function(){clearTimeout(t);cb(false)};i.src=base+'/favicon.svg?go='+Date.now()}
+var res={};
+probe(RU,function(ok){res.ru=ok;if(ok)go(RU);else if(res.com)go(COM);else if(res.com===false)fail()});
+probe(COM,function(ok){res.com=ok;if(ok&&res.ru===false)go(COM);else if(ok)setTimeout(function(){go(COM)},1200);else if(res.ru===false)fail()});
+function fail(){document.getElementById('t').textContent='Выберите, откуда вы открываете сайт:';document.getElementById('ch').classList.add('on')}
+setTimeout(function(){if(!done)fail()},4500);
+})();
+</script></body></html>
