@@ -4,34 +4,60 @@
 <style>
 html,body{margin:0;height:100%}
 body{display:flex;align-items:center;justify-content:center;background:#0B0A1A;color:#EDE6D6;font:16px/1.5 system-ui,-apple-system,sans-serif;text-align:center}
-.b{padding:24px;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.b{padding:24px;max-width:420px;width:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:16px}
 svg{animation:s 6s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
 h1{margin:0;font:600 26px Georgia,serif;letter-spacing:.02em}
-p{margin:0;opacity:.75;font-size:15px}
-.ch{display:none;flex-direction:column;gap:10px;width:100%}
+p{margin:0;opacity:.8;font-size:15px}
+.ch{display:none;flex-direction:column;gap:12px;width:100%}
 .ch.on{display:flex}
-a{display:block;padding:14px 20px;border-radius:999px;text-decoration:none;font-weight:600;color:#2A1C0C;background:linear-gradient(135deg,#F3DDA6,#D9B86E)}
+a,button{display:block;width:100%;box-sizing:border-box;padding:16px 20px;border-radius:999px;text-decoration:none;font:600 17px system-ui,-apple-system,sans-serif;color:#2A1C0C;background:linear-gradient(135deg,#F3DDA6,#D9B86E);border:0;cursor:pointer}
 a.o{background:none;color:#D6B26A;border:1.5px solid #D6B26A}
+button.c{font-size:15px;padding:12px 18px;background:none;color:#EDE6D6;border:1px solid rgba(237,230,214,.35)}
+.h{font-size:14px;opacity:.75;line-height:1.45}
+.ia{display:none;flex-direction:column;gap:10px;width:100%;margin-top:6px;padding-top:14px;border-top:1px solid rgba(214,178,106,.25)}
+.ia.on{display:flex}
 </style></head><body>
 <div class="b">
 <svg width="72" height="72" viewBox="-100 -100 200 200" fill="none" stroke="#C9A04E" stroke-width="6" aria-hidden="true"><circle r="45"/><circle cx="45" r="45"/><circle cx="22.5" cy="38.97" r="45"/><circle cx="-22.5" cy="38.97" r="45"/><circle cx="-45" r="45"/><circle cx="-22.5" cy="-38.97" r="45"/><circle cx="22.5" cy="-38.97" r="45"/></svg>
 <h1>Про Раскрытие</h1>
 <p id="t">Открываю сайт…</p>
-<div class="ch" id="ch"><a id="aru" href="https://proraskritie.ru/">🇷🇺 Открыть сайт (Россия)</a><a class="o" id="acom" href="https://proraskritie.com/">🌍 Открыть сайт (другие страны)</a></div>
+<div class="ch" id="ch">
+<a id="aru" href="https://proraskritie.ru/">🇷🇺 Я в России</a>
+<a class="o" id="acom" href="https://proraskritie.com/">🌍 Другие страны</a>
+<div class="h">Если сайт всё равно не открывается — включите или выключите VPN и нажмите ещё раз.</div>
+<div class="ia" id="ia">
+<div class="h">Иногда сайт не открывается внутри приложения. Нажмите <b>•••</b> или <b>⋮</b> вверху справа → <b>«Открыть в браузере»</b>. Или скопируйте ссылку и вставьте её в браузер.</div>
+<button type="button" class="c" id="cp">📋 Скопировать ссылку</button>
+</div>
+</div>
 </div>
 <script>
 (function(){
-// Умная ссылка: проверяем, какой адрес открывается у человека, и отправляем туда, сохраняя страницу (кабинет, урок, тест…).
+// Умная ссылка: проверяем, какой адрес открывается у человека (.ru — Россия, .com — другие страны),
+// и отправляем туда, сохраняя страницу (кабинет, урок, тест…). Что сработало — запоминаем.
 var RU='https://proraskritie.ru',COM='https://proraskritie.com';
 var path=location.pathname+location.search+location.hash;
 if(path==='/'||path==='/index.html'||path==='/404.html')path='/';
-document.getElementById('aru').href=RU+path;document.getElementById('acom').href=COM+path;
-var done=false;function go(base){if(done)return;done=true;try{localStorage.setItem('pr_go',base)}catch(e){}location.replace(base+path)}
-function probe(base,cb){var i=new Image(),t=setTimeout(function(){i.src='';cb(false)},2500);i.onload=function(){clearTimeout(t);cb(true)};i.onerror=function(){clearTimeout(t);cb(false)};i.src=base+'/favicon.svg?go='+Date.now()}
-var res={};
-probe(RU,function(ok){res.ru=ok;if(ok)go(RU);else if(res.com)go(COM);else if(res.com===false)fail()});
-probe(COM,function(ok){res.com=ok;if(ok&&res.ru===false)go(COM);else if(ok)setTimeout(function(){go(COM)},1200);else if(res.ru===false)fail()});
-function fail(){document.getElementById('t').textContent='Выберите, откуда вы открываете сайт:';document.getElementById('ch').classList.add('on')}
-setTimeout(function(){if(!done)fail()},4500);
+var aru=document.getElementById('aru'),acom=document.getElementById('acom');
+aru.href=RU+path;acom.href=COM+path;
+function save(base){try{localStorage.setItem('pr_go',base)}catch(e){}}
+aru.onclick=function(){save(RU)};acom.onclick=function(){save(COM)};
+var done=false;function go(base){if(done)return;done=true;save(base);location.replace(base+path)}
+function probe(base,ms,cb){var i=new Image(),fin=false,t=setTimeout(function(){if(fin)return;fin=true;i.src='';cb(false)},ms);
+  i.onload=function(){if(fin)return;fin=true;clearTimeout(t);cb(true)};i.onerror=function(){if(fin)return;fin=true;clearTimeout(t);cb(false)};
+  i.src=base+'/favicon.svg?go='+Date.now()+Math.random().toString(36).slice(2,6)}
+function probe2(base,cb){probe(base,6000,function(ok){if(ok)cb(true);else probe(base,7000,cb)})}  // вторая попытка — для медленного интернета
+var ua=navigator.userAgent,inApp=/Instagram|FBAN|FBAV|Telegram|VKClient|; wv\)/.test(ua)||!!window.TelegramWebviewProxy;
+function fail(){document.getElementById('t').textContent='Сайт открывается… Если долго — выберите, где вы находитесь:';document.getElementById('ch').classList.add('on');if(inApp)document.getElementById('ia').classList.add('on')}
+document.getElementById('cp').onclick=function(){var u=location.href,b=this,ok=function(){b.textContent='✓ Ссылка скопирована — вставьте её в браузер'};
+  try{navigator.clipboard.writeText(u).then(ok,function(){prompt('',u)})}catch(e){prompt('',u)}};
+function start(){
+  var res={};
+  probe2(RU,function(ok){res.ru=ok;if(ok)go(RU);else if(res.com)go(COM);else if(res.com===false)fail()});
+  probe2(COM,function(ok){res.com=ok;if(ok&&res.ru===false)go(COM);else if(ok)setTimeout(function(){go(COM)},1200);else if(res.ru===false)fail()});
+}
+setTimeout(function(){if(!done)fail()},3000);   // через 3 секунды после открытия — кнопки; проверка продолжается, и если сайт откроется — перейдём сами
+var saved=null;try{saved=localStorage.getItem('pr_go')}catch(e){}
+if(saved===RU||saved===COM)probe(saved,2500,function(ok){if(ok)go(saved);else start()});else start();
 })();
 </script></body></html>
